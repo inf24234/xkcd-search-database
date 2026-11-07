@@ -76,7 +76,7 @@ def store_json(data):
 
 def main():
     if subprocess.run(["which", "hdfs"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode != 0:
-        os.environ["PATH"] += ":/home/airflow/hadoop/bin"
+        os.environ["PATH"] = os.environ.get("PATH", "") + ":/home/airflow/hadoop/bin"
     os.environ["HADOOP_USER_NAME"] = "hadoop"
 
     limit = int(sys.argv[1]) if len(sys.argv) > 1 else None
