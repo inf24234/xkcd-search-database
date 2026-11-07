@@ -9,10 +9,10 @@
 <body>
     <div class="container mt-5">
         <h1>XKCD Suche</h1>
-        <form method="GET" action="/search">
+        <form method="GET" action="/">
             <div class="mb-3">
                 <label for="query" class="form-label">Suchbegriff:</label>
-                <input type="text" class="form-control" id="query" name="query" required>
+                <input type="text" class="form-control" id="query" name="q" value="{{ phrase }}" required>
             </div>
             <button type="submit" class="btn btn-primary">Suchen</button>
         </form>
@@ -32,8 +32,14 @@
                     </div>
                 {% endfor %}
             </div>
-        {% elif query %}
-            <h2 class="mt-5">Keine Ergebnisse gefunden für "{{ query }}"</h2>
+        {% elif phrase %}
+            <h2 class="mt-5">Keine Ergebnisse gefunden für "{{ phrase }}"</h2>
+        {% endif %}
+        {% if error %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
         {% endif %}
     </div>
 </body>
+</html>
