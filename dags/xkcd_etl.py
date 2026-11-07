@@ -9,6 +9,8 @@ args = {
         "PATH": "/usr/local/bin:/usr/bin:/bin:/home/airflow/hadoop/bin",
         "JAVA_HOME": "/usr/lib/jvm/java-8-openjdk-amd64",
         "HADOOP_USER_NAME": "hadoop",
+        "PYSPARK_PYTHON": "python3",
+        "PYSPARK_DRIVER_PYTHON": "python3",
     },
 }
 

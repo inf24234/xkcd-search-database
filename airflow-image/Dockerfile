@@ -6,4 +6,6 @@ COPY etl/ /home/airflow/airflow/etl/
 RUN pip3 install pymysql
 
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 \
-    HADOOP_USER_NAME=hadoop
+    HADOOP_USER_NAME=hadoop \
+    PYSPARK_PYTHON=python3 \
+    PYSPARK_DRIVER_PYTHON=python3
