@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import logging
+import os
 import re
 import subprocess
 import time
@@ -70,6 +71,10 @@ def store_json(data):
     subprocess.run(["hdfs", "dfs", "-put", "-f", "-", path], input=json.dumps(data), text=True, check=True)
 
 def main():
+    if subprocess.run(["which", "hdfs"], capture_output=True).returncode != 0:
+        os.environ["PATH"] += ":/home/airflow/hadoop/bin"
+    os.environ["HADOOP_USER_NAME"] = "hadoop"
+
     limit = int(sys.argv[1]) if len(sys.argv) > 1 else None
 
     existing_nums = get_existing_nums()
