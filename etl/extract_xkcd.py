@@ -12,6 +12,7 @@ WEB_URL = "https://xkcd.com"
 
 FETCH_RETRY = 3 # number of retries for fetching JSON
 RETRY_DELAY = 1.0  # delay between retries in seconds
+REQUEST_PAUSE = 0.5  # pause between requests to avoid overloading the server
 MAX_CONSECUTIVE_FAILURES = 5 # maximum number of consecutive failures before giving up
 REQUEST_TIMEOUT = 15  # timeout for HTTP requests in seconds
 
@@ -65,13 +66,16 @@ def fetch_json(num, retries=FETCH_RETRY):
     raise RuntimeError(f"Failed to fetch JSON from {url} after {retries} attempts "
                        f"(last HTTP code: {code or 'none'}, last error: {result.stderr.strip()})")
 
+_existing_year_dirs = set()
 
 def store_json(data):
     year = data.get("year")
     if year is None:
         raise ValueError("JSON data does not contain 'year' field.")
+    if year not in _existing_year_dirs:
+        hdfs("-mkdir", "-p", f"{HDFS_RAW_PATH}/{year}")
+        _existing_year_dirs.add(year)
     path = f"{HDFS_RAW_PATH}/{year}/{data['num']}.json"
-    hdfs("-mkdir", "-p", f"{HDFS_RAW_PATH}/{year}")
     subprocess.run(["hdfs", "dfs", "-put", "-f", "-", path], input=json.dumps(data), universal_newlines=True, check=True)
 
 def main():
@@ -111,11 +115,11 @@ def main():
             if consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
                 logger.error("Maximum consecutive failures reached (%d). Stopping.", MAX_CONSECUTIVE_FAILURES)
                 sys.exit(1)
-            time.sleep(RETRY_DELAY)
+            time.sleep(REQUEST_PAUSE)  # pause to avoid overloading the server
             continue
         ok += 1
         consecutive_failures = 0
-        time.sleep(RETRY_DELAY)
+        time.sleep(REQUEST_PAUSE)  # pause to avoid overloading the server
     logger.info("Done. Fetched: %d, Failed: %d, Skipped: %d", ok, fail, skipped)
     if ok == 0 and fail > 0:
         sys.exit(1)

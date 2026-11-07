@@ -4,8 +4,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 
 
-HDFS_RAW_PATH = "hdfs:///user/hadoop/xkcd/raw"
-HDFS_FINAL_PATH = "hdfs:///user/hadoop/xkcd/final"
+HDFS_RAW_PATH = "hdfs://hadoop:9000/user/hadoop/xkcd/raw"
+HDFS_FINAL_PATH = "hdfs://hadoop:9000/user/hadoop/xkcd/final"
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)

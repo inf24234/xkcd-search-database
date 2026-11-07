@@ -5,7 +5,7 @@ import pymysql
 from pyspark.sql import SparkSession
 
 
-HDFS_FINAL_PATH = "hdfs:///user/hadoop/xkcd/final"
+HDFS_FINAL_PATH = "hdfs://hadoop:9000/user/hadoop/xkcd/final"
 
 MYSQL = {
     "host": os.environ.get("MYSQL_HOST", "mysql"),
