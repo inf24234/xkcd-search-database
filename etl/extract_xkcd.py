@@ -26,15 +26,19 @@ def hdfs(*args):
     """Run a command on HDFS."""
     cmd = ["hdfs", "dfs"] + list(args)
     try:
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Error running HDFS command: {e.stderr}") from e
 
 def get_existing_nums():
     nums = set()
-    result = hdfs("-ls", f"{HDFS_RAW_PATH}/*/*.json")
-    for line in result.stdout.splitlines():
+    try:
+        listing = hdfs("-ls", f"{HDFS_RAW_PATH}/*/*.json")
+    except RuntimeError:
+        logger.warning("No existing comics found in HDFS (first run?).")
+        return nums
+    for line in listing.splitlines():
         line = line.strip()
         if not line or line.startswith("Found"):
             continue
@@ -48,7 +52,7 @@ def fetch_json(num, retries=FETCH_RETRY):
     url = f"{WEB_URL}/info.0.json" if num is None else f"{WEB_URL}/{num}/info.0.json"
     body = code = ""
     for attempt in range(1, retries + 1):
-        result = subprocess.run(["curl", "-s", "--max-time", str(REQUEST_TIMEOUT), "-w", "\n%{http_code}", url], capture_output=True, text=True)
+        result = subprocess.run(["curl", "-s", "--max-time", str(REQUEST_TIMEOUT), "-w", "\n%{http_code}", url], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         body, _, code = result.stdout.rpartition("\n")
         if result.returncode == 0 and code == "200":
             return json.loads(body)
@@ -68,10 +72,10 @@ def store_json(data):
         raise ValueError("JSON data does not contain 'year' field.")
     path = f"{HDFS_RAW_PATH}/{year}/{data['num']}.json"
     hdfs("-mkdir", "-p", f"{HDFS_RAW_PATH}/{year}")
-    subprocess.run(["hdfs", "dfs", "-put", "-f", "-", path], input=json.dumps(data), text=True, check=True)
+    subprocess.run(["hdfs", "dfs", "-put", "-f", "-", path], input=json.dumps(data), universal_newlines=True, check=True)
 
 def main():
-    if subprocess.run(["which", "hdfs"], capture_output=True).returncode != 0:
+    if subprocess.run(["which", "hdfs"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode != 0:
         os.environ["PATH"] += ":/home/airflow/hadoop/bin"
     os.environ["HADOOP_USER_NAME"] = "hadoop"
 
