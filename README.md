@@ -3,19 +3,15 @@
 Prüfungsleistung im fünften Semester an der DHBW Stuttgart im Studiengang Informatik im Wahlfach Big Data (https://github.com/marcelmittelstaedt/BigData).
 Aufgabenstellung: [Use XKCD API To Build A Searchable Database](https://github.com/marcelmittelstaedt/BigData/blob/master/slides/winter_semester_2026-2027/5_Practical%20Exam.pdf)
 
+![Comic: Eine Strichfigur erklärt stolz den dreistufigen ETL-Workflow, die zweite fragt "Und wo läuft das?" - "Auf einer VM, die ich nach der Prüfung vergessen habe.](docs/comic.png)
+*Comic: eigene Zeichnung, angelehnt an [xkcd](https://xkcd.com) von Randall Munroe ([CC BY-NC 2.5](https://creativecommons.org/licenses/by-nc/2.5/))*
+
 Von den XKCD Comics (https://xkcd.com) über die JSON API: https://xkcd.com/info.0.json den aktuellsten Comic abrufen und von dessen Nummer die vorherigen Nummern automatisch durchlaufen und die JSON-Dateien in HDFS über deren jeweilige Jahreszahl ablegen. Im nächsten ETL werden die JSON-Dateien ausgelesen, transformiert und in CSV-Dateien abgelegt. Im Anschluss werden diese CSV-Dateien über einen weiteren ETL in MySQL in dem table: comics; eingefügt.
 
 ## Architektur
 
-```
-xkcd.com API --> [1 Extract] --> HDFS /user/hadoop/xkcd/raw/<jahr>/<num>.json
-|
-[2 Transform] --> HDFS /user/hadoop/xkcd/final (CSV)
-|
-[3 Load] --> MySQL xkcd.comics
-|
-[4 Web] --> Flask-Frontend (Suche, FULLTEXT)
-```
+![Architektur: Beschreibung des Bildes ergänzen](docs/fig_architektur.png)
+*Vereinfachte Darstellung der Architektur*
 
 Der komplette Workflow ist als Airflow-DAG `xkcd_etl` (dags/xkcd_etl.py) implementiert und läuft automatisch täglich (`@daily`).
 Task-Kette: `extract_xkcd >> transform_final >> load_mysql`.

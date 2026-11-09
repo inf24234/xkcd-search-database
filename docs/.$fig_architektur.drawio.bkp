@@ -1,0 +1,201 @@
+<mxfile host="Electron">
+  <diagram name="Seite-1" id="c3GgdrHyGrzImvhDScjw">
+    <mxGraphModel dx="1169" dy="1806" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="jNMtukvColj4_nfJcF9p-5" parent="1" style="swimlane;whiteSpace=wrap;html=1;align=left;fixedHeader=1;swimlaneFillColor=none;fontSize=22;" value="ETL-Workflow" vertex="1">
+          <mxGeometry height="290" width="1290" x="30" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-9" connectable="0" parent="jNMtukvColj4_nfJcF9p-5" style="group" value="" vertex="1">
+          <mxGeometry height="60" width="120" x="20" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-8" parent="jNMtukvColj4_nfJcF9p-9" style="rounded=1;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="60" width="120" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-7" parent="jNMtukvColj4_nfJcF9p-9" style="shape=mxgraph.networks2.icon;aspect=fixed;fillColor=#1ba1e2;strokeColor=#006EAF;network2IconShadow=1;network2bgFillColor=none;labelPosition=center;verticalLabelPosition=bottom;align=center;verticalAlign=top;network2Icon=mxgraph.networks2.globe;network2IconW=1;network2IconH=1;fontColor=#ffffff;" value="" vertex="1">
+          <mxGeometry height="50" width="50" x="35" y="5" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-10" parent="jNMtukvColj4_nfJcF9p-5" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b&gt;xkcd API&lt;/b&gt;&lt;div&gt;&lt;span style=&quot;font-size: 12px;&quot;&gt;https://xkcd.com/info.0.json&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="150" x="5" y="135" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-11" edge="1" parent="jNMtukvColj4_nfJcF9p-5" source="jNMtukvColj4_nfJcF9p-8" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="jNMtukvColj4_nfJcF9p-13" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="190" y="150" as="sourcePoint" />
+            <mxPoint x="240" y="100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-15" connectable="0" parent="jNMtukvColj4_nfJcF9p-11" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="1. HTTP GET&lt;br&gt;(Inkrementell)" vertex="1">
+          <mxGeometry relative="1" x="-0.4469" y="-1" as="geometry">
+            <mxPoint x="22" y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-12" connectable="0" parent="jNMtukvColj4_nfJcF9p-5" style="group;fillColor=none;fillStyle=auto;gradientColor=none;labelBackgroundColor=#99CCFF;" value="" vertex="1">
+          <mxGeometry height="60" width="130" x="240" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-13" parent="jNMtukvColj4_nfJcF9p-12" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#99CCFF;" value="&lt;b&gt;Task 1: extract_xkcd.py&lt;/b&gt;&lt;br&gt;Sichert JSON in HDFS RAW&amp;nbsp;" vertex="1">
+          <mxGeometry height="60" width="130" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-16" edge="1" parent="jNMtukvColj4_nfJcF9p-5" source="jNMtukvColj4_nfJcF9p-13" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="380" y="104.71000000000001" as="sourcePoint" />
+            <mxPoint x="480" y="104.71000000000001" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-17" connectable="0" parent="jNMtukvColj4_nfJcF9p-16" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="2. JSON&lt;div&gt;HDFS Put&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.4469" y="-1" as="geometry">
+            <mxPoint x="20" y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-18" parent="jNMtukvColj4_nfJcF9p-5" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#CCFFCC;" value="&lt;b&gt;HDFS RAW (Hadoop)&lt;/b&gt;&lt;div&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;/user/hadoop/xkcd/raw/&amp;lt;jahr&amp;gt;/&amp;lt;num&amp;gt;.json&lt;br&gt;Partitioniert nach Jahr&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="85" width="220" x="480" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-19" edge="1" parent="jNMtukvColj4_nfJcF9p-5" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="700" y="104.94999999999999" as="sourcePoint" />
+            <mxPoint x="810" y="104.66" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-20" connectable="0" parent="jNMtukvColj4_nfJcF9p-19" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="3. Spark liest&lt;div&gt;JSONs&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.4469" y="-1" as="geometry">
+            <mxPoint x="20" y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-21" connectable="0" parent="jNMtukvColj4_nfJcF9p-5" style="group" value="" vertex="1">
+          <mxGeometry height="85" width="130" x="810" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-22" parent="jNMtukvColj4_nfJcF9p-21" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#99CCFF;" value="&lt;b&gt;Task 2: transform_final.py&lt;/b&gt;&lt;br&gt;Transformation über Pyspark:&lt;div&gt;Deduplizierung&lt;/div&gt;" vertex="1">
+          <mxGeometry height="85" width="130" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-23" edge="1" parent="jNMtukvColj4_nfJcF9p-5" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="940" y="104.99999999999997" as="sourcePoint" />
+            <mxPoint x="1050" y="104.71000000000001" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-24" connectable="0" parent="jNMtukvColj4_nfJcF9p-23" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="4. Spark schreibt&lt;div&gt;CSV&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.4469" y="-1" as="geometry">
+            <mxPoint x="20" y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-25" parent="jNMtukvColj4_nfJcF9p-5" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#CCFFCC;" value="&lt;b&gt;HDFS Final (Hadoop)&lt;/b&gt;&lt;div&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;/user/hadoop/xkcd/final/&lt;br&gt;Inkrementelles CSV mit num&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="85" width="220" x="1050" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-29" connectable="0" parent="jNMtukvColj4_nfJcF9p-5" style="group" value="" vertex="1">
+          <mxGeometry height="60" width="145" x="1087.5" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-30" parent="jNMtukvColj4_nfJcF9p-29" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#99CCFF;" value="&lt;b&gt;Task 3: load_mysql.py&lt;/b&gt;&lt;br&gt;Row-by-Row UPSERT" vertex="1">
+          <mxGeometry height="60" width="145" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-27" edge="1" parent="jNMtukvColj4_nfJcF9p-5" source="jNMtukvColj4_nfJcF9p-25" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="jNMtukvColj4_nfJcF9p-30" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="1160" y="280.28999999999996" as="sourcePoint" />
+            <mxPoint x="1160" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-28" connectable="0" parent="jNMtukvColj4_nfJcF9p-27" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="5. Spark liest CSV&lt;br&gt;(für Upsert)" vertex="1">
+          <mxGeometry relative="1" x="-0.4469" y="-1" as="geometry">
+            <mxPoint x="1" y="-2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-31" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#CCFFCC;" value="&lt;b&gt;MySQL DB: xkcd&lt;/b&gt;&lt;br&gt;Table: comics&lt;div&gt;PK: num&lt;/div&gt;&lt;div&gt;search_text (FULLTEXT Index)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="220" x="827" y="415.62" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-32" edge="1" parent="1" source="jNMtukvColj4_nfJcF9p-30" style="endArrow=classic;html=1;rounded=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;curved=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" target="jNMtukvColj4_nfJcF9p-31" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <Array as="points">
+              <mxPoint x="1190" y="465.62" />
+            </Array>
+            <mxPoint x="1240" y="560" as="sourcePoint" />
+            <mxPoint x="1240" y="695" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-33" connectable="0" parent="jNMtukvColj4_nfJcF9p-32" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="6. UPSERT in&lt;div&gt;MySQL&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.4469" y="-1" as="geometry">
+            <mxPoint x="-71" y="66" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-39" connectable="0" parent="1" style="group" value="" vertex="1">
+          <mxGeometry height="137.5" width="112.5" x="400" y="403.75" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-44" connectable="0" parent="jNMtukvColj4_nfJcF9p-39" style="group" value="" vertex="1">
+          <mxGeometry height="137.5" width="130" x="-22.5" y="-7" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-45" parent="jNMtukvColj4_nfJcF9p-44" style="rounded=1;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="137.5" width="130" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-34" parent="jNMtukvColj4_nfJcF9p-39" style="fillColorStyles=neutralFill;neutralFill=#9DA6A8;shape=mxgraph.networks2.icon;aspect=fixed;fillColor=#F3F4F6;strokeColor=#006EAF;network2IconShadow=1;network2bgFillColor=none;labelPosition=center;verticalLabelPosition=bottom;align=center;verticalAlign=top;network2Icon=mxgraph.networks2.global_server;network2IconW=1;network2IconH=1;fontColor=#ffffff;" value="" vertex="1">
+          <mxGeometry height="85" width="85" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-38" parent="jNMtukvColj4_nfJcF9p-39" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b&gt;Web-Frontend&lt;/b&gt;&lt;br&gt;(Flask + Gunicorn)" vertex="1">
+          <mxGeometry height="30" width="110" x="-12.5" y="92.5" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-42" edge="1" parent="1" source="jNMtukvColj4_nfJcF9p-47" style="endArrow=classic;html=1;rounded=0;exitX=0.999;exitY=0.276;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;exitPerimeter=0;" target="jNMtukvColj4_nfJcF9p-45" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="410" y="642.5" as="sourcePoint" />
+            <mxPoint x="420" y="447.51" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-43" connectable="0" parent="jNMtukvColj4_nfJcF9p-42" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="A. Suchanfrage" vertex="1">
+          <mxGeometry relative="1" x="-0.4469" y="-1" as="geometry">
+            <mxPoint x="38" y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-48" connectable="0" parent="1" style="group" value="" vertex="1">
+          <mxGeometry height="151.25" width="181" x="40" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-47" parent="jNMtukvColj4_nfJcF9p-48" style="rounded=1;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="151.25" width="174" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-40" parent="jNMtukvColj4_nfJcF9p-48" style="shape=mxgraph.networks2.icon;aspect=fixed;fillColor=#F3F4F6;strokeColor=#000000;gradientColor=#5B6163;network2IconShadow=1;network2bgFillColor=none;labelPosition=center;verticalLabelPosition=bottom;align=center;verticalAlign=top;network2Icon=mxgraph.networks2.laptop;network2IconW=1;network2IconH=0.5734;" value="" vertex="1">
+          <mxGeometry height="85" width="148.24" x="12.759999999999991" y="18.75" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-41" parent="jNMtukvColj4_nfJcF9p-48" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b&gt;Schnittstelle zum Nutzer (UI)&lt;/b&gt;&lt;div&gt;Suchleiste und Ergebnisse&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="174" x="-0.1200000000000001" y="111.25" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-49" edge="1" parent="1" source="jNMtukvColj4_nfJcF9p-45" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=0.999;entryY=0.728;entryDx=0;entryDy=0;entryPerimeter=0;" target="jNMtukvColj4_nfJcF9p-47" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="422" y="492.50285714285735" as="sourcePoint" />
+            <mxPoint x="210" y="492.50285714285735" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-50" connectable="0" parent="jNMtukvColj4_nfJcF9p-49" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="B. Suchergebnisse" vertex="1">
+          <mxGeometry relative="1" x="-0.4469" y="-1" as="geometry">
+            <mxPoint x="-36" y="2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-51" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="SELECT ... MATCH(search_text)&lt;div&gt;FULLTEXT-SUCHE&lt;/div&gt;&lt;div&gt;AGAINST (...)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="115.63" width="140" x="560" y="407.81" as="geometry" />
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-52" edge="1" parent="1" source="jNMtukvColj4_nfJcF9p-45" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=none;startFill=0;endFill=0;" target="jNMtukvColj4_nfJcF9p-51" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="500" y="625.62" as="sourcePoint" />
+            <mxPoint x="712" y="625.62" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-54" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;exitX=0.999;exitY=0.276;exitDx=0;exitDy=0;entryX=-0.002;entryY=0.303;entryDx=0;entryDy=0;exitPerimeter=0;entryPerimeter=0;" target="jNMtukvColj4_nfJcF9p-31" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="700" y="445.62" as="sourcePoint" />
+            <mxPoint x="864" y="445.62" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-55" connectable="0" parent="jNMtukvColj4_nfJcF9p-54" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="7. SQL Query" vertex="1">
+          <mxGeometry relative="1" x="-0.4469" y="-1" as="geometry">
+            <mxPoint x="29" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-56" edge="1" parent="1" source="jNMtukvColj4_nfJcF9p-51" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=-0.001;entryY=0.788;entryDx=0;entryDy=0;entryPerimeter=0;endFill=0;startArrow=classic;startFill=1;" target="jNMtukvColj4_nfJcF9p-31" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="780" y="565.62" as="sourcePoint" />
+            <mxPoint x="907" y="565.62" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jNMtukvColj4_nfJcF9p-57" connectable="0" parent="jNMtukvColj4_nfJcF9p-56" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="8. Result" vertex="1">
+          <mxGeometry relative="1" x="-0.4469" y="-1" as="geometry">
+            <mxPoint x="29" as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
