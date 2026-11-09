@@ -33,6 +33,7 @@ def hdfs(*args):
         raise RuntimeError(f"Error running HDFS command: {e.stderr}") from e
 
 def get_existing_nums():
+    """Get a set of comic numbers that already exist in HDFS."""
     nums = set()
     try:
         listing = hdfs("-ls", f"{HDFS_RAW_PATH}/*/*.json")
@@ -50,6 +51,7 @@ def get_existing_nums():
     return nums
 
 def fetch_json(num, retries=FETCH_RETRY):
+    """Fetch JSON data for a specific comic number from the XKCD website."""
     url = f"{WEB_URL}/info.0.json" if num is None else f"{WEB_URL}/{num}/info.0.json"
     body = code = ""
     for attempt in range(1, retries + 1):
@@ -69,6 +71,7 @@ def fetch_json(num, retries=FETCH_RETRY):
 _existing_year_dirs = set()
 
 def store_json(data):
+    """Store JSON data in HDFS under the appropriate year directory."""
     year = data.get("year")
     if year is None:
         raise ValueError("JSON data does not contain 'year' field.")

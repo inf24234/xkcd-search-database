@@ -26,6 +26,7 @@ UPSERT = """INSERT INTO comics (num, title, alt, img, link, pub_date, search_tex
                 search_text = VALUES(search_text)"""
 
 def write_partition(rows):
+    """Write a partition of rows to MySQL."""
     conn = pymysql.connect(**MYSQL)
     try:
         with conn.cursor() as cursor:
