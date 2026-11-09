@@ -8,7 +8,7 @@ Von den XKCD Comics (https://xkcd.com) über die JSON API: https://xkcd.com/info
 ## Architektur
 
 ```
-xkcd.com API --> [1 Extract] --> HDFS /user/hadoop/xkcd/raw/<jahr>/<num>.jsom
+xkcd.com API --> [1 Extract] --> HDFS /user/hadoop/xkcd/raw/<jahr>/<num>.json
 |
 [2 Transform] --> HDFS /user/hadoop/xkcd/final (CSV)
 |
@@ -50,16 +50,16 @@ Beim allerersten Start initialisieren alle Dienste, Status prüfen:
 ## ETL-Workflow im Detail
 
 ### 1. extract_xkcd (etl/extract_xkcd.py)
-Zweck: ...
+Zweck: Lädt nur die fehlende Comics die noch nicht im HDFS /user/hadoop/xkcd/raw/<jahr>/ als JSON abgelegt sind. Das neuste Comic wird über die Nummer via info.0.json (unter: https://xkcd.com/info.0.json findet sich das neuste Comic). Dabei werden Retry mit exponentiellen Backoff, HTTP Errorcodes 404 werden übersprungen und über eine Pause pro Request (Standard 0,5 s) die API abgerufen. Die JSONs über die API werden in HDFS nach deren Erscheinungsjahr partitioniert.
 
 ### 2. transform_final (etl/transform_final.py)
-Zweck: ...
+Zweck: PySpark auf dem Hadoop-Cluster. Publikatiomsdatum wird aus year/month/day zusammengestellt, title als Fallback bei safe_title, Deduplizierung über num, search_text aus title + alt zusammengestellt.
 
 ### 3. load_mysql (etl/load_mysql.py)
-Zweck: ...
+Zweck: Spark liest CSV partitioniert, foreachParition schreibt per pymysql, UPSERT via ON DUPLICATE KEY UPDATE.
 
 ### 4. Web-Frontend (web/)
-Zweck: ...
+Zweck: Flask mit FULLTEXT-Suche, Treffer nach num absteigend, Limit 100
 
 ## Datenmodell
 
