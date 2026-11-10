@@ -9,7 +9,7 @@ Aufgabenstellung: [Use XKCD API To Build A Searchable Database](https://github.c
 ## Überblick
 
 Das Projekt baut eine durchsuchbare Datenbank der xkcd-Comics auf:
-1. Über die JSON-API (<https://xkcd.com/info.0.json>) wird der aktuellste Comic abgerufen. Ausgehend von dessen Nummer werden die vorherigen Comics automatisch durchlaufen, und die JSON-Dateien werden in HDFS nach Erscheingungsjahr abgelegt.
+1. Über die JSON-API (<https://xkcd.com/info.0.json>) wird der aktuellste Comic abgerufen. Ausgehend von dessen Nummer werden die vorherigen Comics automatisch durchlaufen (standardmäßig max. 100 pro DAG-Ausführung, siehe DAG-Parameter `limit`), und die JSON-Dateien werden in HDFS nach Erscheingungsjahr abgelegt.
 2. Ein zweiter ETL-Schritt liest die JSON-Dateien aus, transformiert sie und legt das Ergebnis als CSV in HDFS ab.
 3. Ein dritter ETL-Schritt lädt die CSV-Dateien in die MySQL-Tabelle `comics`.
 4. Ein Flask-Frontend ermöglicht die Volltextsuche über diese Tabelle.
@@ -31,6 +31,28 @@ Task-Kette: `extract_xkcd >> transform_final >> load_mysql`.
 | 5 | `load_mysql` liest das CSV mit Spark |
 | 6 | UPSERT der Daten in die MySQL-Tabelle `comics`|
 | A-D | Suchanfrage des Nutzers → SQL-Query des Frontends → Ergebnis von MySQL → Anzeige der Treffer |
+
+## Datenquelle: xkcd-API
+
+Die [JSON-API von xkcd](https://xkcd.com/json.html) liefert zu jedem Comic Metadaten.
+Der aktuellste Comic ist über <https://xkcd.com/info.0.json> erreichbar, ein konkreter Comic über `https://xkcd.com/<nummer>/info.0.json`.
+
+Beispielantwort (Text bei `"alt":` gekürzt):
+
+```json
+{
+    "month": "10",
+    "num": 2054,
+    "link": "",
+    "year": "2018",
+    "news": "",
+    "safe_title": "Data Pipeline",
+    "transcript": "",
+    "alt": "\"Is the pipeline literally running from your laptop?\" ...",
+    "img": "https://imgs.xkcd.com/comics/data_pipeline.png",
+    "title": "Data Pipeline",
+    "day": "3"}
+```
 
 ## Voraussetzungen
 
@@ -72,12 +94,15 @@ Der DAG `xkcd_etl` läuft täglich automatisch. Für den ersten Durchlauf kann e
 
 ## ETL-Workflow im Detail
 
+[PLATZHALTER, hier kommt ein Screenshot der Airflow UI, der den DAG `xkcd_etl` mit den drei Tasks zeigt.]
+
 ### 1. extract_xkcd (etl/extract_xkcd.py)
 Lädt nur die fehlenden Comics, die noch nicht unter `/user/hadoop/xkcd/raw/<jahr>` als JSON in HDFS liegen. Der neueste Comic und seine Nummer stammen von <https://xkcd.com/info.0.json>; von dort werden die vorherigen Nummern durchlaufen.
-- Fehlgeschlagene Requests werden mit exponentiellen Backoff wiederholt.
-- HTTP-Statuscode 404 werden übersprungen.
-- Zwischen zwei Request liegt eine Pause (Standard 0,5s), um die API zu schonen.
-- Die JSON-Dateien werden nach ihrem Erscheingungsjahr partioniert abgelegt.
+- Pro Lauf werden maximal `limit` neue Comics geladen (Standard: 100). Der DAG muss daher für einen vollständigen Bestand mehrfach laufen bzw. der Parameter erhöht werden.
+- Fehlgeschlagene Requests werden mit exponentiellem Backoff wiederholt.
+- HTTP-Statuscode 404 wird übersprungen.
+- Zwischen zwei Requests liegt eine Pause (Standard 0,5s), um die API zu schonen.
+- Die JSON-Dateien werden nach ihrem Erscheinungsjahr partitioniert abgelegt.
 
 ### 2. transform_final (etl/transform_final.py)
 PySpark auf dem Hadoop-Cluster:
@@ -91,14 +116,18 @@ Spark liest das CSV partitioniert. `foreachPartition` schreibt die Daten mit `py
 
 
 ### 4. Web-Frontend (web/)
-Flask-Anwendung mit FULLTEXT-Suche auf `search_text`. Die Treffer werden nach num absteigend sortiert (neuste zuerst), nicht nach Relevanz. Pro Suche werden maximal 100 Treffer angezeigt.
+Flask-Anwendung mit FULLTEXT-Suche auf `search_text`. Die Treffer werden nach num absteigend sortiert (neueste zuerst), nicht nach Relevanz. Pro Suche werden maximal 100 Treffer angezeigt.
+
+[PLATZHALTER, hier kommt ein Screenshot des Web-Frontends mit Suchergebnis]
+
+## Geschäftsregeln (Business Rules)
 
 ## Datenmodell
 
 | Layer | Speicherort | Inhalt |
 |---|---|---|
-| Raw | HDFS, partitioniert nach Jahr | Orginal-JSON der API |
-| Final | HDFS | CSV mit `num`, `pub_year`, `title`, `link`, `img`, `alt`, `search_text` |
+| Raw | HDFS, partitioniert nach Jahr | Original-JSON der API |
+| Final | HDFS | CSV mit `num`, `pub_date`, `title`, `link`, `img`, `alt`, `search_text` |
 | End-User-DB | MySQL-Tabelle `comics` (sql/comics.sql) | Daten des Final-Layers, FULLTEXT-Index auf search_text
 
 ## Projektstruktur
@@ -128,6 +157,7 @@ Flask-Anwendung mit FULLTEXT-Suche auf `search_text`. Die Treffer werden nach nu
     ├── app.py
     ├── Dockerfile
     └── templates
+        └── index.html
 ```
 
 ## Lizenz und Quellen
