@@ -21,11 +21,11 @@ with DAG(
     start_date=datetime(2026, 11, 1),
     catchup=False,
     default_args=args,
+    params={"limit": 100},
 ) as dag:
-
     extract_task = BashOperator(
         task_id="extract_xkcd",
-        bash_command="python3 /home/airflow/airflow/etl/extract_xkcd.py 100 ",
+        bash_command="python3 /home/airflow/airflow/etl/extract_xkcd.py {{ params.limit }} ",
     )
 
     transform_task = BashOperator(

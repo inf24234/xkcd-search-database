@@ -88,6 +88,8 @@ def main():
     os.environ["HADOOP_USER_NAME"] = "hadoop"
 
     limit = int(sys.argv[1]) if len(sys.argv) > 1 else None
+    if limit == 0:
+        limit = None
 
     existing_nums = get_existing_nums()
     latest_num = fetch_json(None)["num"]
