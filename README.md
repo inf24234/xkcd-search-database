@@ -51,7 +51,8 @@ Beispielantwort (Text bei `"alt":` gekürzt):
     "alt": "\"Is the pipeline literally running from your laptop?\" ...",
     "img": "https://imgs.xkcd.com/comics/data_pipeline.png",
     "title": "Data Pipeline",
-    "day": "3"}
+    "day": "3"
+}
 ```
 
 ## Voraussetzungen
@@ -80,6 +81,17 @@ Beim allerersten Start initialisieren alle Dienste, Status prüfen:
 docker compose ps
 docker compose logs -f airflow      # bis der Webserver läuft
 ```
+
+Um die Container zu beenden:
+```
+docker compose down
+```
+Die persistenten Daten bleiben dabei erhalten.
+Um zusätzlich alle angelegten Volumes zu löschen:
+```
+docker compose down -v
+```
+Hierbei werden die HDFS-Daten des Hadoop-Volumes (`hadoop_data`) und die MySQL-Datenbank gelöscht.
 
 **Bedienung:**
 
@@ -118,9 +130,14 @@ Spark liest das CSV partitioniert. `foreachPartition` schreibt die Daten mit `py
 ### 4. Web-Frontend (web/)
 Flask-Anwendung mit FULLTEXT-Suche auf `search_text`. Die Treffer werden nach num absteigend sortiert (neueste zuerst), nicht nach Relevanz. Pro Suche werden maximal 100 Treffer angezeigt.
 
-[PLATZHALTER, hier kommt ein Screenshot des Web-Frontends mit Suchergebnis]
+![Web-Frontend: Beschreibung des Screenshot ergänzen](docs/fig_web.png)
+*Darstellung der Suchergebnisse Web-Frontend anhand des Begriffs "Sketch"*
 
 ## Geschäftsregeln (Business Rules)
+
+|  | Regel | Schritt |
+|---|---|---|
+| R1 | TODO | TODO |
 
 ## Datenmodell
 

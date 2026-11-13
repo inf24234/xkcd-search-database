@@ -3,6 +3,14 @@ services:
     build:
       context: .
       dockerfile: hadoop-image/Dockerfile
+    volumes:
+      - hadoop_data:/home/hadoop/hadoopdata
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/localhost/9870' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
     ports: ["9870:9870", "8088:8088"]
     networks: [bigdatanet]
 
@@ -10,7 +18,11 @@ services:
     build:
       context: .
       dockerfile: airflow-image/Dockerfile
-    depends_on: [hadoop, mysql]
+    depends_on:
+      hadoop:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
     ports: ["8080:8080"]
     networks: [bigdatanet]
 
@@ -19,6 +31,11 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: xkcd
       MYSQL_DATABASE: xkcd
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
     volumes:
       - ./sql:/docker-entrypoint-initdb.d
       - mysql_data:/var/lib/mysql
@@ -26,7 +43,9 @@ services:
 
   web:
     build: ./web
-    depends_on: [mysql]
+    depends_on:
+      mysql:
+        condition: service_healthy
     ports: ["80:80"]
     networks: [bigdatanet]
 
@@ -35,3 +54,4 @@ networks:
 
 volumes:
   mysql_data:
+  hadoop_data:

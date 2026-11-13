@@ -14,10 +14,12 @@ def main():
     spark = SparkSession.builder.appName("XKCD Transform Final").getOrCreate()
 
     # 1. Read the raw JSON files from HDFS
+    logger.info(f"Reading raw JSON files from HDFS path: {HDFS_RAW_PATH}")
     raw_df = (spark.read.option("multiline", "true").json(f"{HDFS_RAW_PATH}/*/*.json"))
     raw_count = raw_df.count()
     if raw_count == 0:
         raise RuntimeError(f"No raw JSON files found in {HDFS_RAW_PATH}. Run extract_xkcd.py first.")
+    logger.info(f"Read {raw_count} raw records from HDFS.")
 
     # 2. Clean and transform the data
     cleaned_df = (raw_df
@@ -30,6 +32,7 @@ def main():
                     .select("num", "pub_date", "title", "link", "img", "alt", "search_text")
                     .dropDuplicates(["num"]))
     final_count = cleaned_df.count()
+    logger.info(f"Transformed data: {final_count} unique records after cleaning and deduplication.")
 
     (cleaned_df.write
         .mode("overwrite")

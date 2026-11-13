@@ -58,9 +58,17 @@ def fetch_json(num, retries=FETCH_RETRY):
         result = subprocess.run(["curl", "-s", "--max-time", str(REQUEST_TIMEOUT), "-w", "\n%{http_code}", url], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         body, _, code = result.stdout.rpartition("\n")
         if result.returncode == 0 and code == "200":
-            return json.loads(body)
+            try:
+                data = json.loads(body)
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse JSON: comic={url}, try={attempt}, error={e}")
+                raise
+            logger.info(f"Successfully fetched JSON for: comic {num or 'latest'}, api_num={data.get('num')}, title={data.get('safe_title') or data.get('title')}, year={data.get('year')}, attempt={attempt}")
+            return data
         if code == "404":  # HTTP error
+            logger.warning(f"Comic {num} not found (HTTP 404).")
             raise ComicNotFoundError(f"Comic {num} not found.")
+        logger.warning(f"Failed to fetch JSON: comic={num or 'latest'}, HTTP code=={code or 'none'}, try={attempt}/{retries}")
         if attempt < retries:
             delay = RETRY_DELAY * (2 ** (attempt - 1))  # exponential backoff
             logger.warning(f"fetch {num} failed (HTTP code: {code or 'none'}), retrying in {delay:.1f}s...")
@@ -76,10 +84,16 @@ def store_json(data):
     if year is None:
         raise ValueError("JSON data does not contain 'year' field.")
     if year not in _existing_year_dirs:
+        logger.info(f"Creating HDFS directory for year {year}: {HDFS_RAW_PATH}/{year}")
         hdfs("-mkdir", "-p", f"{HDFS_RAW_PATH}/{year}")
         _existing_year_dirs.add(year)
     path = f"{HDFS_RAW_PATH}/{year}/{data['num']}.json"
-    subprocess.run(["hdfs", "dfs", "-put", "-f", "-", path], input=json.dumps(data), universal_newlines=True, check=True)
+    try:
+        subprocess.run(["hdfs", "dfs", "-put", "-f", "-", path], input=json.dumps(data), universal_newlines=True, check=True)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Failed to store JSON for comic {data.get('num')} in HDFS: {e}")
+        raise
+    logger.info(f"Stored JSON for comic {data.get('num')} in HDFS at {path}")
 
 def main():
     if subprocess.run(["which", "hdfs"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode != 0:
@@ -92,9 +106,12 @@ def main():
         limit = None
 
     existing_nums = get_existing_nums()
+    latest_data = fetch_json(None)
     latest_num = fetch_json(None)["num"]
 
-    todo = [num for num in range(1, latest_num + 1) if num not in existing_nums]
+    logger.info(f"Latest available comic: Number={latest_num}, Title={latest_data.get('safe_title') or latest_data.get('title')}, Year={latest_data.get('year')}, Month={latest_data.get('month')}, Day={latest_data.get('day')}")
+
+    todo = [num for num in range(1, latest_num + 1) if num not in existing_nums] # start from 1 to latest_num inclusive, maybe give option to start from latest_num
     if limit:
         todo = todo[:limit]
     if not todo:

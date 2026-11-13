@@ -1,8 +1,8 @@
 #!/bin/bash
+# Based on: startup.sh from the instructur's (Marcel Mittelstaedt) course repository
+# https://github.com/marcelmittelstaedt/BigData/blob/master/docker/airflow/startup.sh
+# with custom modifications for this project
 # https://docs.docker.com/config/containers/multi-service_container/
-# ===================================================================
-# startup.sh aus: https://github.com/marcelmittelstaedt/BigData/blob/master/docker/airflow/startup.sh
-# kopiert und angepasst
 
 # Setup PostgreSQL and Init Airflow 
 CONTAINER_ALREADY_INITIALIZED="CONTAINER_ALREADY_INITIALIZED"

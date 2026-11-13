@@ -1,4 +1,7 @@
 #!/bin/bash
+# Based on: startup.sh from the instructur's (Marcel Mittelstaedt) course repository
+# https://github.com/marcelmittelstaedt/BigData/blob/master/docker/hadoop_base/startup.sh
+# with custom modifications for this project
 # https://docs.docker.com/config/containers/multi-service_container/
 
 # Start SSH
@@ -9,8 +12,11 @@ if [ $status -ne 0 ]; then
   exit $status
 fi
 
-# Fromat HDFS and Setup Hive 
-CONTAINER_ALREADY_INITIALIZED="CONTAINER_ALREADY_INITIALIZED"
+# Fromat HDFS and Setup Hive
+HADOOP_DATA_DIR="/home/hadoop/hadoopdata"
+mkdir -p "$HADOOP_DATA_DIR"
+chown hadoop:hadoop "$HADOOP_DATA_DIR"
+CONTAINER_ALREADY_INITIALIZED="$HADOOP_DATA_DIR/CONTAINER_ALREADY_INITIALIZED"
 if [ ! -e $CONTAINER_ALREADY_INITIALIZED ]; then
     touch $CONTAINER_ALREADY_INITIALIZED
     echo "First start of container."
@@ -40,7 +46,7 @@ fi
 
 echo "Container Startup finished."
 
- Start Hadoop Cluster
+# Start Hadoop Cluster
 sudo -u hadoop -H sh -c "echo Switched to User:; whoami; cd; /home/hadoop/hadoop/sbin/start-all.sh"
 status=$?
 if [ $status -ne 0 ]; then
