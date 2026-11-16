@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from airflow import DAG
+from airflow.models.param import Param
 from airflow.operators.bash_operator import BashOperator
 
 args = {
@@ -21,11 +22,29 @@ with DAG(
     start_date=datetime(2026, 11, 1),
     catchup=False,
     default_args=args,
-    params={"limit": 100},
+    params={
+        "limit": Param(
+            default=100,
+            type="integer",
+            minimum=0,
+            title="ComicLimit",
+            description="Number of comics to process. Set to 0 to process all comics.",
+            ),
+        "order": Param(
+            default="asc",
+            type="string",
+            enum=["asc", "desc"],
+            title="Order",
+            description="Order in which to process the comics. 'asc' for ascending, 'desc' for descending.",
+        ),
+        },
 ) as dag:
     extract_task = BashOperator(
         task_id="extract_xkcd",
-        bash_command="python3 /home/airflow/airflow/etl/extract_xkcd.py {{ params.limit }} ",
+        bash_command=("python3 /home/airflow/airflow/etl/extract_xkcd.py "
+            "--limit '{{ params.limit }}' "
+            "--order '{{ params.order }}'",
+        )
     )
 
     transform_task = BashOperator(

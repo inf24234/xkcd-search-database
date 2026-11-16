@@ -108,9 +108,24 @@ Der DAG `xkcd_etl` läuft täglich automatisch. Für den ersten Durchlauf kann e
 
 [PLATZHALTER, hier kommt ein Screenshot der Airflow UI, der den DAG `xkcd_etl` mit den drei Tasks zeigt.]
 
+### Manuelles Starten mit Parametern
+
+Der DAG `xkcd_etl` kann über die Airflow UI mit Parametern gestartet werden.
+
+Verfügbare Parameter:
+
+| Parameter | Standardwert | Beschreibung |
+|---|---:|---|
+| `limit` | `100` | Anzahl der neu zu ladene Comics. Das setzen des Wertes auf `0` lädt alle noch fehlende Comics. |
+| `order` | `asc` | `asc` für älteste zuerst, `desc` für neuste zuerst |
+
 ### 1. extract_xkcd (etl/extract_xkcd.py)
 Lädt nur die fehlenden Comics, die noch nicht unter `/user/hadoop/xkcd/raw/<jahr>` als JSON in HDFS liegen. Der neueste Comic und seine Nummer stammen von <https://xkcd.com/info.0.json>; von dort werden die vorherigen Nummern durchlaufen.
-- Pro Lauf werden maximal `limit` neue Comics geladen (Standard: 100). Der DAG muss daher für einen vollständigen Bestand mehrfach laufen bzw. der Parameter erhöht werden.
+- Pro Lauf werden maximal `limit` neue Comics geladen (Standard: 100).
+- Der Wert `limit = 0` lädt alle noch fehlende Comics.
+- Mit `order = asc` werden die ältesten fehlenden Comics zuerst verarbeitet.
+- Mit `order = desc` werden die neusten fehlenden Comics zuerst verarbeitet.
+- Der DAG überspringt Comics, die bereits in HDFS vorhanden sind.
 - Fehlgeschlagene Requests werden mit exponentiellem Backoff wiederholt.
 - HTTP-Statuscode 404 wird übersprungen.
 - Zwischen zwei Requests liegt eine Pause (Standard 0,5s), um die API zu schonen.

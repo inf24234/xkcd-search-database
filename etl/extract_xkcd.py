@@ -6,6 +6,7 @@ import re
 import subprocess
 import time
 import sys
+import argparse
 
 HDFS_RAW_PATH = "/user/hadoop/xkcd/raw"
 WEB_URL = "https://xkcd.com"
@@ -101,18 +102,29 @@ def main():
         os.environ["PATH"] = base + ":/home/airflow/hadoop/bin"
     os.environ["HADOOP_USER_NAME"] = "hadoop"
 
-    limit = int(sys.argv[1]) if len(sys.argv) > 1 else None
-    if limit == 0:
-        limit = None
+    parser = argparse.ArgumentParser("Extract XKCD comics and store them in HDFS")
+    parser.add_argument("--limit", type=int, default=100, help="Number of comics to process. Set to 0 to process all comics.")
+    parser.add_argument("--order", choices=["asc", "desc"], default="asc", help="Order in which to process the comics. 'asc' for ascending, 'desc' for descending.")
+    args = parser.parse_args()
+
+    if args.limit < 0:
+        logger.error("Limit must be a non-negative integer.")
+        sys.exit(1)
+
+    limit = args.limit
+    order = args.order
 
     existing_nums = get_existing_nums()
     latest_data = fetch_json(None)
-    latest_num = fetch_json(None)["num"]
+    latest_num = latest_data["num"]
 
     logger.info(f"Latest available comic: Number={latest_num}, Title={latest_data.get('safe_title') or latest_data.get('title')}, Year={latest_data.get('year')}, Month={latest_data.get('month')}, Day={latest_data.get('day')}")
 
-    todo = [num for num in range(1, latest_num + 1) if num not in existing_nums] # start from 1 to latest_num inclusive, maybe give option to start from latest_num
-    if limit:
+    if order == "asc":
+        todo = [num for num in range(1, latest_num + 1) if num not in existing_nums]
+    else:
+        todo = [num for num in range(latest_num, 0, -1) if num not in existing_nums]
+    if limit > 0:
         todo = todo[:limit]
     if not todo:
         logger.info("No new comics to fetch. Newest comic number: %d, fetched: %d", latest_num, len(existing_nums))
@@ -130,6 +142,7 @@ def main():
             skipped += 1
             consecutive_failures = 0
             logger.warning("Comic %d not found (404). Skipping.", num)
+            continue
         except (RuntimeError, subprocess.CalledProcessError, ValueError) as e:
             fail += 1
             consecutive_failures += 1
