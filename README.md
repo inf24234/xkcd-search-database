@@ -116,13 +116,13 @@ Verfügbare Parameter:
 
 | Parameter | Standardwert | Beschreibung |
 |---|---:|---|
-| `limit` | `100` | Anzahl der neu zu ladene Comics. Das setzen des Wertes auf `0` lädt alle noch fehlende Comics. |
+| `limit` | `100` | Anzahl der neu zu ladenden Comics. Das setzen des Wertes auf `0` lädt alle noch fehlende Comics. |
 | `order` | `asc` | `asc` für älteste zuerst, `desc` für neuste zuerst |
 
 ### 1. extract_xkcd (etl/extract_xkcd.py)
 Lädt nur die fehlenden Comics, die noch nicht unter `/user/hadoop/xkcd/raw/<jahr>` als JSON in HDFS liegen. Der neueste Comic und seine Nummer stammen von <https://xkcd.com/info.0.json>; von dort werden die vorherigen Nummern durchlaufen.
 - Pro Lauf werden maximal `limit` neue Comics geladen (Standard: 100).
-- Der Wert `limit = 0` lädt alle noch fehlende Comics.
+- Der Wert `limit = 0` lädt alle noch fehlenden Comics.
 - Mit `order = asc` werden die ältesten fehlenden Comics zuerst verarbeitet.
 - Mit `order = desc` werden die neusten fehlenden Comics zuerst verarbeitet.
 - Der DAG überspringt Comics, die bereits in HDFS vorhanden sind.
@@ -136,13 +136,15 @@ PySpark auf dem Hadoop-Cluster:
 - Das Publikationsdatum (`pub_date`) wird aus `year`, `month` und `day` zusammengesetzt.
 - `title` dient als Fallback, falls `safe_title` fehlt.
 - Deduplizierung über `num`.
-- `search_text` wird auf `title` und `alt` zusammengesetzt.
+- `search_text` wird aus `title` und `alt` zusammengesetzt.
 
 ### 3. load_mysql (etl/load_mysql.py)
 Spark liest das CSV partitioniert. `foreachPartition` schreibt die Daten mit `pymysql` in MySQL, als UPSERT über `ON DUPLICATE KEY UPDATE`. Dadurch kann der DAG beliebig oft laufen, ohne dass Comics doppelt in der Datenbank landen.
 
 
 ### 4. Web-Frontend (web/)
+Als CSS-Framework wird [Bootstrap 5.3.9](https://getbootstrap.com/) verwendet.
+
 Flask-Anwendung mit FULLTEXT-Suche auf `search_text`. Die Treffer werden nach num absteigend sortiert (neueste zuerst), nicht nach Relevanz. Pro Suche werden maximal 100 Treffer angezeigt.
 
 ![Web-Frontend: Beschreibung des Screenshot ergänzen](docs/fig_web.png)

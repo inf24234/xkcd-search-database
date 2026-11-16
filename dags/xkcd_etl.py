@@ -23,20 +23,8 @@ with DAG(
     catchup=False,
     default_args=args,
     params={
-        "limit": Param(
-            default=100,
-            type="integer",
-            minimum=0,
-            title="ComicLimit",
-            description="Number of comics to process. Set to 0 to process all comics.",
-            ),
-        "order": Param(
-            default="asc",
-            type="string",
-            enum=["asc", "desc"],
-            title="Order",
-            description="Order in which to process the comics. 'asc' for ascending, 'desc' for descending.",
-        ),
+        "limit": 100,
+        "order": "asc",
         },
 ) as dag:
     extract_task = BashOperator(
