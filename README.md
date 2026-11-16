@@ -29,7 +29,7 @@ Task-Kette: `extract_xkcd >> transform_final >> load_mysql`.
 | 3 | `transform_final` liest die JSON-Dateien mit Spark |
 | 4 | Spark schreibt das bereinigte CSV nach `/user/hadoop/xkcd/final/` |
 | 5 | `load_mysql` liest das CSV mit Spark |
-| 6 | UPSERT der Daten in die MySQL-Tabelle `comics`|
+| 6 | UPSERT der Daten in die MySQL-Tabelle `comics` |
 | A-D | Suchanfrage des Nutzers → SQL-Query des Frontends → Ergebnis von MySQL → Anzeige der Treffer |
 
 ## Datenquelle: xkcd-API
@@ -75,11 +75,18 @@ git clone https://github.com/inf24234/xkcd-search-database.git
 cd xkcd-search-database
 docker compose up -d --build
 ```
-Beim allerersten Start initialisieren alle Dienste, Status prüfen:
+Beim ersten Start werden die Container automatisch erstellt und initialisiert. Der ersten Start kann wegen der Hadoop- und Airflow-Initialisierung etwas länger dauern.
+
+Den Status der Container kann man prüfen mit
 
 ```bash
 docker compose ps
-docker compose logs -f airflow      # bis der Webserver läuft
+```
+
+Die Airflow-Logs können bei Bedarf verfolgt werden:
+
+```bash
+docker compose logs -f airflow
 ```
 
 Um die Container zu beenden:
@@ -135,13 +142,14 @@ Dabei werden bis zu 100 der neusten Comics verarbeitet.
 | Parameter | Bedeutung |
 |---|---|
 | `limit` | Anzahl der Comics. `0` lädt alle noch fehlenden Comics |
-| `order` | `asc` verarbeitet die ältesten zuerst, `desc` die neusten zuerst |
+| `order` | `asc` verarbeitet die ältesten zuerst, `desc` die neuesten zuerst |
 
 Der DAG muss in der Airflow UI auf **On** stehen, damit der Scheduler ihn ausführt. Eigene Parameter können nur über die Kommandozeile mit `-c` übergeben werden. Ohne `-c` werden die Standardwerte des DAGs verwendet.
 
 ## ETL-Workflow im Detail
 
-[PLATZHALTER, hier kommt ein Screenshot der Airflow UI, der den DAG `xkcd_etl` mit den drei Tasks zeigt.]
+![Airflow UI: Graph mit den drei erfolgreichen ETL-Tasks](docs/fig_airflow.png)
+*Airflow-Graph des DAGs `xkcd_etl` nach erfolgreicher Ausführung*
 
 
 ### 1. extract_xkcd (etl/extract_xkcd.py)
@@ -152,9 +160,9 @@ Lädt nur die fehlenden Comics, die noch nicht unter `/user/hadoop/xkcd/raw/<jah
 - Mit `order = desc` werden die neusten fehlenden Comics zuerst verarbeitet.
 - Der DAG überspringt Comics, die bereits in HDFS vorhanden sind.
 - Fehlgeschlagene Requests werden mit exponentiellem Backoff wiederholt.
-- HTTP-Statuscode 404 wird übersprungen.
+- HTTP-Statuscode `404` wird übersprungen.
 - Zwischen zwei Requests liegt eine Pause (Standard 0,5s), um die API zu schonen.
-- Die JSON-Dateien werden nach ihrem Erscheinungsjahr partitioniert abgelegt.
+- Die JSON-Dateien werden nach ihrem Erscheingungsjahr partitioniert abgelegt.
 
 ### 2. transform_final (etl/transform_final.py)
 PySpark auf dem Hadoop-Cluster:
@@ -172,14 +180,24 @@ Als CSS-Framework wird [Bootstrap 5.3.9](https://getbootstrap.com/) verwendet.
 
 Flask-Anwendung mit FULLTEXT-Suche auf `search_text`. Die Treffer werden nach num absteigend sortiert (neueste zuerst), nicht nach Relevanz. Pro Suche werden maximal 100 Treffer angezeigt.
 
-![Web-Frontend: Beschreibung des Screenshot ergänzen](docs/fig_web.png)
+![Web-Frontend: Suchergebnisse für den Begriff "Sketch"](docs/fig_web.png)
 *Darstellung der Suchergebnisse Web-Frontend anhand des Begriffs "Sketch"*
 
 ## Geschäftsregeln (Business Rules)
 
-|  | Regel | Schritt |
-|---|---|---|
-| R1 | TODO | TODO |
+|  | Business Rule |
+|---|---|
+| BR01 | Jeder Comic wird eindeutig über seine Comicnummer (`num`) identifiziert. |
+| BR02 | Dubletten werden im Final-Layer entfernt. |
+| BR03 | Bereits im HDFS Raw-Layer gespeicherte Comics werden übersprungen. |
+| BR04 | Pro Lauf werden standardmäßig max. 100 fehlende Comics geladen |
+| BR05 | Nicht existierende Comicnummern (z.B. HTTP-Statuscode `404`) werden übersprungen. Einzelne fehlende Nummern dürfen nicht zum Abbruch der Pipeline führen. |
+| BR06 | Der Abruf der Comics kann chronologisch auf- oder absteigend (`order`) gesteuert werden. Die Ablage im Raw-Layer erfolgt partitioniert nach Erscheingungsjahr (`year`). |
+| BR07 | Datensätze ohne gültige Nummer (num IS NULL) werden verworfen. |
+| BR08 | Als Titel wird primär `safe_title` verwendet, mit `title` als Fallback. |
+| BR09 | Die direkte Web-URL <https://xkcd.com/2054/> wird generiert, und die Einzelfelder `year`, `month` und `day` werden zu einem SQL-Datum (`pub_date`) zusammengeführt. |
+| BR10 | Für die Volltextsuche werden `title` und `alt` zu search_text kombiniert. Nicht benötige API-Felder (`news`, `link`, `transcript`) werden verworfen |
+| BR11 | Suchanfragen im Web-Frontend nutzen den MySQL FULLTEXT-Index auf `search_text`. Ergebnisse werden absteigend nach `num` sortiert und auf max. 100 Treffer begrenzt. |
 
 ## Datenmodell
 

@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 .$*.bkp
 *.drawio.bkp
+.DS_Store
+.vscode/
+.idea/

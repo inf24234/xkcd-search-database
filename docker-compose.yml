@@ -9,7 +9,7 @@ services:
       test: 
         [
           "CMD-SHELL",
-          "sudo -u hadoop -H /home/hadoop/hadoop/bin/hdfs dfsadmin -report >/dev/null 2>&1 || exit 1"
+          "sudo -u hadoop -H /home/hadoop/hadoop/bin/hdfs dfs -ls / >/dev/null 2>&1 || exit 1"
         ]
       interval: 10s
       timeout: 10s
