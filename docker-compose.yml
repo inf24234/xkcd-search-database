@@ -6,11 +6,15 @@ services:
     volumes:
       - hadoop_data:/home/hadoop/hadoopdata
     healthcheck:
-      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/localhost/9870' || exit 1"]
+      test: 
+        [
+          "CMD-SHELL",
+          "sudo -u hadoop -H /home/hadoop/hadoop/bin/hdfs dfsadmin -report >/dev/null 2>&1 || exit 1"
+        ]
       interval: 10s
-      timeout: 5s
-      retries: 20
-      start_period: 60s
+      timeout: 10s
+      retries: 30
+      start_period: 90s
     ports: ["9870:9870", "8088:8088"]
     networks: [bigdatanet]
 
