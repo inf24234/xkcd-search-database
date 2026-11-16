@@ -29,8 +29,8 @@ with DAG(
     extract_task = BashOperator(
         task_id="extract_xkcd",
         bash_command=("python3 /home/airflow/airflow/etl/extract_xkcd.py "
-            "--limit '{{ dag_run.conf.get('limit', params.limit) }}' "
-            "--order '{{ dag_run.conf.get('order', params.order) }}'"
+            "--limit '{{ dag_run.conf.get('limit', params.limit) if dag_run.conf else params.limit }}' "
+            "--order '{{ dag_run.conf.get('order', params.order) if dag_run.conf else params.order }}' "
         )
     )
 
