@@ -23,7 +23,7 @@ with DAG(
     default_args=args,
     params={
         "limit": 100,
-        "order": "asc",
+        "order": "desc",
         },
 ) as dag:
     extract_task = BashOperator(

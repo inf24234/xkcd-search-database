@@ -102,22 +102,43 @@ Hierbei werden die HDFS-Daten des Hadoop-Volumes (`hadoop_data`) und die MySQL-D
 | HDFS NameNode UI | `http://<host>:9870` |
 | YARN UI | `http://<host>:8088` |
 
-Der DAG `xkcd_etl` läuft täglich automatisch. Für den ersten Durchlauf kann er in der Airflow UI manuell gestartet werden.
+Der DAG `xkcd_etl` ist für einen täglichen Lauf (`@daily`) konfiguriert. Damit der Scheduler den DAG ausführt, muss der DAG in der Airflow UI auf **On** gestellt werden. Das Aktivieren startet nicht sofort einen Lauf.
+
+Beim ersten Start kann die Datenbank vollständig befüllt werden, indem der DAG einmalig über die Kommandozeile mit `limit = 0` gestartet wird.
+
+### Initiale Befüllung und manuelle Läufe
+
+Für die erstmalige Befüllung werden alle noch fehlenden Comic geladen
+
+```bash
+docker compose exec -u airflow airflow \
+  /home/airflow/.local/bin/airflow trigger_dag xkcd_etl \
+  -c '{"limit": 0, "order": "asc"}'
+```
+
+`limit = 0` bedeutet, dass alle noch fehlenden Comic verarbeitet werden. Bereits vorhandene Comics werden übersprungen.
+
+Für den regulären Betrieb können einzelne Läufe mit eigenen Parametern gestartet werden:
+
+```bash
+docker compose exec -u airflow airflow \
+  /home/airflow/.local/bin/airflow trigger_dag xkcd_etl \
+  -c '{"limit": 100, "order": "desc"}'
+```
+
+Dabei werden bis zu 100 der neusten Comic verarbeitet.
+
+| Parameter | Bedeutung |
+|---|---|
+| `limit` | Anzahl der Comics. `0` lädt alle noch fehlenden Comics |
+| `order` | `asc` verarbeitet die ältesten zuerst, `desc` die neusten zuerst |
+
+Der DAG muss in der Airflow UI auf **On** stehen. Das Einschalten aktiviert nur den Scheduler und startet keinen Lauf unmittelbar. Ohne `-c` werden die im DAG definierten Standardwerte verwendet.
 
 ## ETL-Workflow im Detail
 
 [PLATZHALTER, hier kommt ein Screenshot der Airflow UI, der den DAG `xkcd_etl` mit den drei Tasks zeigt.]
 
-### Manuelles Starten mit Parametern
-
-Der DAG `xkcd_etl` kann über die Airflow UI mit Parametern gestartet werden.
-
-Verfügbare Parameter:
-
-| Parameter | Standardwert | Beschreibung |
-|---|---:|---|
-| `limit` | `100` | Anzahl der neu zu ladenden Comics. Das setzen des Wertes auf `0` lädt alle noch fehlende Comics. |
-| `order` | `asc` | `asc` für älteste zuerst, `desc` für neuste zuerst |
 
 ### 1. extract_xkcd (etl/extract_xkcd.py)
 Lädt nur die fehlenden Comics, die noch nicht unter `/user/hadoop/xkcd/raw/<jahr>` als JSON in HDFS liegen. Der neueste Comic und seine Nummer stammen von <https://xkcd.com/info.0.json>; von dort werden die vorherigen Nummern durchlaufen.

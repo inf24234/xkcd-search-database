@@ -9,10 +9,13 @@
 <body>
     <div class="container mt-5">
         <h1>XKCD Suche</h1>
+        {% if comic_count is not none %}
+            <p class="text-muted">Insgesamt {{ comic_count }} Comics in der Datenbank.</p>
+        {% endif %}
         <form method="GET" action="/">
             <div class="mb-3">
                 <label for="query" class="form-label">Suchbegriff:</label>
-                <input type="text" class="form-control" id="query" name="q" value="{{ phrase }}" required>
+                <input type="text" class="form-control" id="query" name="q" value="{{ phrase }}" autocomplete="off" required>
             </div>
             <button type="submit" class="btn btn-primary">Suchen</button>
         </form>

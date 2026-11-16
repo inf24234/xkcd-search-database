@@ -18,6 +18,8 @@ SEARCH = """SELECT num, title, link, img, alt, pub_date
             ORDER BY num DESC
             LIMIT 100"""
 
+COUNT_QUERY = "SELECT COUNT(*) AS count FROM comics"
+
 def search_comics(phrase):
     conn = pymysql.connect(**MYSQL)
     try:
@@ -27,14 +29,27 @@ def search_comics(phrase):
     finally:
         conn.close()
 
+def count_comics():
+    conn = pymysql.connect(**MYSQL)
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(COUNT_QUERY)
+            return cursor.fetchone()[0]
+    finally:
+        conn.close()
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     phrase = request.args.get("q", "").strip()
     results = []
     error = None
-    if phrase:
-        try:
+    comic_count = None
+
+    try:
+        comic_count = count_comics()
+        if phrase:
             results = search_comics(phrase)
-        except pymysql.err.MySQLError as e:
-            error = f"Database error: {e}"
-    return render_template("index.html", phrase=phrase, results=results, error=error)
+    except pymysql.err.MySQLError as e:
+        error = f"Database error: {e}"
+
+    return render_template("index.html", phrase=phrase, results=results, error=error, comic_count=comic_count)
