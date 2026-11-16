@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from airflow import DAG
-from airflow.models.param import Param
 from airflow.operators.bash_operator import BashOperator
 
 args = {
@@ -30,19 +29,19 @@ with DAG(
     extract_task = BashOperator(
         task_id="extract_xkcd",
         bash_command=("python3 /home/airflow/airflow/etl/extract_xkcd.py "
-            "--limit '{{ params.limit }}' "
-            "--order '{{ params.order }}'",
+            "--limit '{{ dag_run.conf.get('limit', params.limit) }}' "
+            "--order '{{ dag_run.conf.get('order', params.order) }}'"
         )
     )
 
     transform_task = BashOperator(
         task_id="transform_final",
-        bash_command="python3 /home/airflow/airflow/etl/transform_final.py ",
+        bash_command="python3 /home/airflow/airflow/etl/transform_final.py "
     )
 
     load_task = BashOperator(
         task_id="load_mysql",
-        bash_command="python3 /home/airflow/airflow/etl/load_mysql.py ",
+        bash_command="python3 /home/airflow/airflow/etl/load_mysql.py "
     )
 
     extract_task >> transform_task >> load_task
