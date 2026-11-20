@@ -39,6 +39,19 @@ def main():
     spark = SparkSession.builder.appName("XKCD Load MySQL").getOrCreate()
     df = spark.read.csv(HDFS_FINAL_PATH, header=True)
     df.foreachPartition(write_partition)
+
+    conn = pymysql.connect(**MYSQL)
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("ALTER TABLE comics DROP INDEX ft_search")
+            cursor.execute(
+                "ALTER TABLE comics "
+                "ADD FULLTEXT KEY ft_search(search_text)"
+            )
+        conn.commit()
+    finally:
+        conn.close()
+        
     spark.stop()
 
 if __name__ == "__main__":

@@ -225,7 +225,7 @@ PySpark auf dem Hadoop-Cluster:
 - `search_text` wird aus `title` und `alt` zusammengesetzt.
 
 ### 3. load_mysql (etl/load_mysql.py)
-Spark liest das CSV als DataFrame und verarbeitet die Daten partitioniert mit `foreachPartition` und schreibt die Daten mit `pymysql` in MySQL, als UPSERT über `ON DUPLICATE KEY UPDATE`. Dadurch kann der DAG beliebig oft laufen, ohne dass Comics doppelt in der Datenbank landen.
+Spark liest das CSV als DataFrame und verarbeitet die Daten partitioniert mit `foreachPartition` und schreibt die Daten mit `pymysql` in MySQL, als UPSERT über `ON DUPLICATE KEY UPDATE`. Dadurch kann der DAG beliebig oft laufen, ohne dass Comics doppelt in der Datenbank landen. Nach dem Laden wird der FULLTEXT-Index auf `search_text` neu erstellt, damit die Suche mit dem aktuellen Datenbestand synchronisiert bleibt.
 
 
 ### 4. Web-Frontend (web/)
