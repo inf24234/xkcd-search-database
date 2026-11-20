@@ -146,6 +146,41 @@ Dabei werden bis zu 100 der neusten Comics verarbeitet.
 
 Der DAG muss in der Airflow UI auf **On** stehen, damit der Scheduler ihn ausführt. Eigene Parameter können nur über die Kommandozeile mit `-c` übergeben werden. Ohne `-c` werden die Standardwerte des DAGs verwendet.
 
+### Daten und Ausführung prüfen
+
+HDFS-Befehle können über den Airflow-Container ausgeführt werden.
+
+Um alle JSON-Dateien aufzulisten:
+
+```bash
+docker compose exec -u airflow airflow \
+  /home/airflow/hadoop/bin/hdfs dfs -ls -R /user/hadoop/xkcd/raw
+```
+
+Um den Inhalt einer einzelne JSON-Datei auszugeben:
+
+```bash
+docker compose exec -u airflow airflow \
+  /home/airflow/hadoop/bin/hdfs dfs -cat \
+  /user/hadoop/xkcd/raw/2018/2054.json
+```
+
+Oder um die Anzahl der gespeicherten Comics in der Datenbank abzufragen:
+
+```bash
+docker compose exec mysql \
+  mysql -uroot -pxkcd xkcd \
+  -e "SELECT COUNT(*) FROM comics;"
+```
+
+Und um die zehn neusten gespeicherten Comics abzufragen:
+
+```bash
+docker compose exec mysql \
+  mysql -uroot -pxkcd xkcd \
+  -e "SELECT num, title, pub_date FROM comics ORDER BY num DESC LIMIT 10;"
+```
+
 ## ETL-Workflow im Detail
 
 ![Airflow UI: Graph mit den drei erfolgreichen ETL-Tasks](docs/fig_airflow.png)
