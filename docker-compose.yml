@@ -24,6 +24,8 @@ services:
     build:
       context: .
       dockerfile: airflow-image/Dockerfile
+    volumes:
+      - airflow_postgres:/var/lib/postgresql/10/main
     depends_on:
       hadoop:
         condition: service_healthy
@@ -61,3 +63,4 @@ networks:
 volumes:
   mysql_data:
   hadoop_data:
+  airflow_postgres:

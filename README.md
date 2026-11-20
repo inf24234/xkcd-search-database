@@ -83,6 +83,24 @@ Den Status der Container kann man prüfen mit
 docker compose ps
 ```
 
+Vor dem Start eines DAGs können die Hadoop-Logs mit folgendem Befehl verfolgt werden:
+
+```bash
+docker compose logs -f hadoop
+```
+
+Die Hadoop-Daemons müssen gestartet sein:
+
+```
+Starting namenodes on [hadoop]
+Starting datanodes
+Starting secondary namenodes [...]
+Starting resourcemanager
+Starting nodemanagers
+```
+
+Danach kann ein DAG in der Airflow UI gestartet werden.
+
 Die Airflow-Logs können bei Bedarf verfolgt werden:
 
 ```bash
