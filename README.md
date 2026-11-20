@@ -9,7 +9,7 @@ Aufgabenstellung: [Use XKCD API To Build A Searchable Database](https://github.c
 ## Überblick
 
 Das Projekt baut eine durchsuchbare Datenbank der xkcd-Comics auf:
-1. Über die JSON-API (<https://xkcd.com/info.0.json>) wird der aktuellste Comic abgerufen. Ausgehend von dessen Nummer werden die vorherigen Comics automatisch durchlaufen (standardmäßig max. 100 pro DAG-Ausführung, siehe DAG-Parameter `limit`), und die JSON-Dateien werden in HDFS nach Erscheingungsjahr abgelegt.
+1. Über die JSON-API (<https://xkcd.com/info.0.json>) wird der aktuellste Comic abgerufen. Ausgehend von dessen Nummer werden die vorherigen Comics automatisch durchlaufen (standardmäßig max. 100 pro DAG-Ausführung, siehe DAG-Parameter `limit`), und die JSON-Dateien werden in HDFS nach Erscheinungsjahr abgelegt.
 2. Ein zweiter ETL-Schritt liest die JSON-Dateien aus, transformiert sie und legt das Ergebnis als CSV in HDFS ab.
 3. Ein dritter ETL-Schritt lädt die CSV-Dateien in die MySQL-Tabelle `comics`.
 4. Ein Flask-Frontend ermöglicht die Volltextsuche über diese Tabelle.
@@ -75,7 +75,7 @@ git clone https://github.com/inf24234/xkcd-search-database.git
 cd xkcd-search-database
 docker compose up -d --build
 ```
-Beim ersten Start werden die Container automatisch erstellt und initialisiert. Der ersten Start kann wegen der Hadoop- und Airflow-Initialisierung etwas länger dauern.
+Beim ersten Start werden die Container automatisch erstellt und initialisiert. Der erste Start kann wegen der Hadoop- und Airflow-Initialisierung etwas länger dauern.
 
 Den Status der Container kann man prüfen mit
 
@@ -162,7 +162,7 @@ Lädt nur die fehlenden Comics, die noch nicht unter `/user/hadoop/xkcd/raw/<jah
 - Fehlgeschlagene Requests werden mit exponentiellem Backoff wiederholt.
 - HTTP-Statuscode `404` wird übersprungen.
 - Zwischen zwei Requests liegt eine Pause (Standard 0,5s), um die API zu schonen.
-- Die JSON-Dateien werden nach ihrem Erscheingungsjahr partitioniert abgelegt.
+- Die JSON-Dateien werden nach ihrem Erscheinungsjahr partitioniert abgelegt.
 
 ### 2. transform_final (etl/transform_final.py)
 PySpark auf dem Hadoop-Cluster:
@@ -172,7 +172,7 @@ PySpark auf dem Hadoop-Cluster:
 - `search_text` wird aus `title` und `alt` zusammengesetzt.
 
 ### 3. load_mysql (etl/load_mysql.py)
-Spark liest das CSV partitioniert. `foreachPartition` schreibt die Daten mit `pymysql` in MySQL, als UPSERT über `ON DUPLICATE KEY UPDATE`. Dadurch kann der DAG beliebig oft laufen, ohne dass Comics doppelt in der Datenbank landen.
+Spark liest das CSV als DataFrame und verarbeitet die Daten partitioniert mit `foreachPartition` und schreibt die Daten mit `pymysql` in MySQL, als UPSERT über `ON DUPLICATE KEY UPDATE`. Dadurch kann der DAG beliebig oft laufen, ohne dass Comics doppelt in der Datenbank landen.
 
 
 ### 4. Web-Frontend (web/)
@@ -192,7 +192,7 @@ Flask-Anwendung mit FULLTEXT-Suche auf `search_text`. Die Treffer werden nach nu
 | BR03 | Bereits im HDFS Raw-Layer gespeicherte Comics werden übersprungen. |
 | BR04 | Pro Lauf werden standardmäßig max. 100 fehlende Comics geladen |
 | BR05 | Nicht existierende Comicnummern (z.B. HTTP-Statuscode `404`) werden übersprungen. Einzelne fehlende Nummern dürfen nicht zum Abbruch der Pipeline führen. |
-| BR06 | Der Abruf der Comics kann chronologisch auf- oder absteigend (`order`) gesteuert werden. Die Ablage im Raw-Layer erfolgt partitioniert nach Erscheingungsjahr (`year`). |
+| BR06 | Der Abruf der Comics kann chronologisch auf- oder absteigend (`order`) gesteuert werden. Die Ablage im Raw-Layer erfolgt partitioniert nach Erscheinungsjahr (`year`). |
 | BR07 | Datensätze ohne gültige Nummer (num IS NULL) werden verworfen. |
 | BR08 | Als Titel wird primär `safe_title` verwendet, mit `title` als Fallback. |
 | BR09 | Die direkte Web-URL <https://xkcd.com/2054/> wird generiert, und die Einzelfelder `year`, `month` und `day` werden zu einem SQL-Datum (`pub_date`) zusammengeführt. |
@@ -207,6 +207,8 @@ Flask-Anwendung mit FULLTEXT-Suche auf `search_text`. Die Treffer werden nach nu
 | Final | HDFS | CSV mit `num`, `pub_date`, `title`, `link`, `img`, `alt`, `search_text` |
 | End-User-DB | MySQL-Tabelle `comics` (sql/comics.sql) | Daten des Final-Layers, FULLTEXT-Index auf search_text
 
+Der Raw-Layer wird inkrementell erweitert durch `extract_xkcd.py`. Der Final-Layer wird durch `transform_final.py` bei jedem Lauf vollständig aus allen Raw-JSON-Dateien neu erzeugt. Anschließend liest `load_mysql.py` das vollständige CSV mit Spark als DataFrame und schreibt die Daten partitioniert per `foreachPartition` und `executemany` per UPSERT nach MySQL.
+
 ## Projektstruktur
 ```text
 .
@@ -218,8 +220,10 @@ Flask-Anwendung mit FULLTEXT-Suche auf `search_text`. Die Treffer werden nach nu
 ├── docker-compose.yml
 ├── docs
 │   ├── comic.png
+│   ├── fig_airflow.png
 │   ├── fig_architektur.drawio
-│   └── fig_architektur.png
+│   ├── fig_architektur.png
+│   └── fig_web.png
 ├── etl
 │   ├── extract_xkcd.py
 │   ├── load_mysql.py
